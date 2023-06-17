@@ -2,6 +2,7 @@ import api
 from keys import *
 import numpy
 import time
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     client = api.Binance_API(api_key=api_key, secret_key=secret_key)
@@ -24,6 +25,7 @@ if __name__ == '__main__':
         ema_short = api.ema(close_price, 2)
         ema_long = api.ema(close_price, 5)
         print(api.rsi(close_price, 14))
+        print(api.bollinger_breakout_strategy(close_price, 20, 2))
         # print(ema_short)
         short_value = ema_short[-1]
         prev_short_value = ema_short[-2]
@@ -45,3 +47,23 @@ if __name__ == '__main__':
             print(short)
         else:
             print('No signal')
+        # генерируем данные
+        positions, upper_band, lower_band = api.bollinger_breakout_strategy(close_price, 20, 2)
+
+        # рисуем график цен закрытия
+        plt.plot(close_price)
+
+        # рисуем график верхней полосы Боллинджера
+        plt.plot(upper_band)
+
+        # рисуем график нижней полосы Боллинджера
+        plt.plot(lower_band)
+
+        # добавляем легенду
+        plt.legend(["Close Price", "Upper Band", "Lower Band"])
+
+        # добавляем заголовок
+        plt.title("Bollinger Bands")
+
+        # показываем график
+        plt.show()
