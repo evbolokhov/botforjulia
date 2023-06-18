@@ -17,10 +17,9 @@ def send_notification(text):
 
 async def _send_notification(text):
     # Ожидайте завершения корутины Bot.send_message() с помощью await
-    try:
-        await bot.send_message(chat_id=chat_id, text=text)
-    except Exception as e:
-        print(f'Ошибка при отправке уведомления: {e}')
+
+    await bot.send_message(chat_id=chat_id, text=text)
+
 
 
 

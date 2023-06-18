@@ -4,6 +4,13 @@ from keys import *
 import numpy
 import time
 import threading
+import sys, traceback
+import logging
+logger = logging.getLogger(__name__)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 class SymbolThread(threading.Thread):
@@ -53,8 +60,13 @@ class SymbolThread(threading.Thread):
                 print("{} Bought {} units of {}".format(self.symbol, qnt, self.symbol.split("USDT")[0]))
                 try:
                     tel.send_notification('Куплено {} {} по цене {}'.format(self.symbol, qnt, self.symbol.split("USDT")[0]))
+                # except telegram.error.InvalidToken as e:
+                #     logger.error("An error occurred: %s", e)
+                    # here you can handle the InvalidToken error
                 except Exception as e:
-                    print(f'Ошибка при отправке уведомления: {e}')
+                    logger.error("An error occurred: %s", e)  # exc_info=True)
+                    # here you can handle any other exceptions
+                    # print(f'Ошибка при отправке уведомления: {e}')
                 # В случае ошибки, код выполнится дальше, а не будет остановлен
             # Short
             elif prev_short_value > prev_long_value and short_value < long_value and rsi[-1] < 30 and positions[
