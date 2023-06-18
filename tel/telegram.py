@@ -1,56 +1,70 @@
-import telegram
-from telegram.error import NetworkError
-from  time import sleep
-
-# Замените <your_token> на токен вашего бота Telegram
-bot = telegram.Bot(token='<your_token>')
-
-# chat_id - идентификатор чата в Telegram, куда будут отправляться уведомления
-# Замените <your_chat_id> на идентификатор вашего чата в Telegram
-chat_id = '<your_chat_id>'
-
-
-def send_notification(text):
-    import asyncio
-    asyncio.run(_send_notification(text))
-
-
-async def _send_notification(text):
-    # Ожидайте завершения корутины Bot.send_message() с помощью await
-
-    await bot.send_message(chat_id=chat_id, text=text)
-
-
-
-
-
 # import telegram
-# from telegram.error import NetworkError, Unauthorized
+# import asyncio
+# import logging
 #
-# # Импортируем токен и chat_id из файла keys.py
-# from keys import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+# import keys
 #
-# class TelegramBot:
-#     def __init__(self):
-#         self.bot = telegram.Bot(token=TELEGRAM_TOKEN)
+# logger = logging.getLogger(__name__)
+# formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+# handler = logging.StreamHandler()
+# handler.setFormatter(formatter)
+# logger.addHandler(handler)
 #
-#     async def send_message(self, text):
-#         try:
-#             await self.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=text)
-#         except NetworkError:
-#             print("Network Error occurred, trying again in 5 seconds...")
-#             await asyncio.sleep(5)
-#             await self.send_message(text)
-#         except Unauthorized:
-#             print("Unauthorized access, please check your token and chat ID.")
 #
-# async def main():
-#     # Создаем объект класса TelegramBot
-#     telegram_bot = TelegramBot()
+# from telegram.error import NetworkError
+# from  time import sleep
 #
-#     # Отправляем сообщение
-#     await telegram_bot.send_message("Hello, world!")
+# # Замените <your_token> на токен вашего бота Telegram
+# bot = telegram.Bot(token=keys.TELEGRAM_TOKEN)
 #
-# # Запускаем корутину с помощью asyncio.run()
-# if __name__ == "__main__":
-#     asyncio.run(main())
+# # chat_id - идентификатор чата в Telegram, куда будут отправляться уведомления
+# # Замените <your_chat_id> на идентификатор вашего чата в Telegram
+# chat_id = keys.TELEGRAM_CHAT_ID
+#
+#
+# #def send_notification(text):
+#     # offset = None
+#     # while True:
+#     # try:
+#     #asyncio.run(_send_notification(text))
+#     # except Exception as e:
+#         # logger.error("An error occurred: %s", e, exc_info=True)
+#
+#
+# # def send_notification(text):
+# #     # Ожидайте завершения корутины Bot.send_message() с помощью await
+# #
+# #     while True:
+# #         try:
+# #             if text:
+# #                 await bot.send_message(chat_id=chat_id, text=text)
+# #             await asyncio.sleep(5)
+# #
+# #         except Exception as e:
+# #             logger.error("An error occurred: %s", e, exc_info=True)
+#
+#
+# # async def handle_messages():
+# #     offset = None
+# #     while True:
+# #         try:
+# #             updates = bot.get_updates(offset=offset, timeout=60)
+# #             for update in updates:
+# #                 message = update.message
+# #                 if message:
+# #                     # Обрабатывайте входящие сообщения здесь,
+# #                     # например, отправляйте уведомления в другой чат
+# #                     await bot.send_message(chat_id=chat_id, text=message.text)
+# #                 offset = update.update_id + 1
+# #         except telegram.TelegramError as error:
+# #             # Обрабатывайте ошибки при получении обновлений здесь
+# #             print(f'Error while receiving updates: {error}')
+# #         await asyncio.sleep(1)
+# #
+# #
+# # async def main():
+# #     # Создайте задачу для корутины handle_messages(),
+# #     # чтобы ее выполнение осуществлялось в отдельном потоке
+# #     task = asyncio.create_task(handle_messages())
+# #     await task
+#

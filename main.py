@@ -1,4 +1,5 @@
 import api
+import keys
 import tel
 from keys import *
 import numpy
@@ -6,13 +7,29 @@ import time
 import threading
 import sys, traceback
 import logging
+import requests
+import asyncio
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-
+def send_telegram_message(bot_token, chat_id, text):
+    """
+    Отправляет сообщение в телеграм бота.
+    :param bot_token: токен бота.
+    :param chat_id: идентификатор чата.
+    :param text: текст сообщения.
+    """
+    url = "https://api.telegram.org/bot%s/sendMessage" % keys.TELEGRAM_TOKEN
+    data = {
+        "chat_id": keys.TELEGRAM_CHAT_ID,
+        "text": text
+    }
+    response = requests.post(url, data=data)
+    if response.status_code != 200:
+        print("Ошибка отправки сообщения в телеграм:", response.text)
 class SymbolThread(threading.Thread):
     def __init__(self, symbol):
         super(SymbolThread, self).__init__()
@@ -58,13 +75,15 @@ class SymbolThread(threading.Thread):
                 qnt = 5  # значение количества, которое вы хотите использовать для торговли
                 long = self.client.create_market_order(symbol=self.symbol, side='BUY', qnt=qnt)
                 print("{} Bought {} units of {}".format(self.symbol, qnt, self.symbol.split("USDT")[0]))
-                try:
-                    tel.send_notification('Куплено {} {} по цене {}'.format(self.symbol, qnt, self.symbol.split("USDT")[0]))
+                message_text = "{} купил {} единиц {}.".format(self.symbol, qnt, self.symbol.split("USDT")[0])
+                send_telegram_message(keys.TELEGRAM_TOKEN, keys.TELEGRAM_CHAT_ID, message_text)
+                # try:
+
                 # except telegram.error.InvalidToken as e:
                 #     logger.error("An error occurred: %s", e)
                     # here you can handle the InvalidToken error
-                except Exception as e:
-                    logger.error("An error occurred: %s", e)  # exc_info=True)
+                # except Exception as e:
+                    # logger.error("An error occurred: %s", e, exc_info=True)
                     # here you can handle any other exceptions
                     # print(f'Ошибка при отправке уведомления: {e}')
                 # В случае ошибки, код выполнится дальше, а не будет остановлен
@@ -75,7 +94,7 @@ class SymbolThread(threading.Thread):
                 qnt = 5  # значение количества, которое вы хотите использовать для торговли
                 short = self.client.create_market_order(symbol=self.symbol, side='SELL', qnt=qnt)
                 print("{} Sold {} units of {}".format(self.symbol, qnt, self.symbol.split("USDT")[0]))
-                tel.send_notification('Продано {} {} по цене {}'.format(self.symbol, qnt, self.symbol.split("USDT")[0]))
+
             else:
                 print('{} No signal'.format(self.symbol))
 
@@ -109,5 +128,9 @@ def start_threads():
     print("Все потоки завершены")
 
 
+# async def run():
+#     await tel.main()
+
 if __name__ == '__main__':
     start_threads()
+    # asyncio.run(run())
