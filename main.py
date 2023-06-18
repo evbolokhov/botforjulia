@@ -1,4 +1,5 @@
 import api
+import tel
 from keys import *
 import numpy
 import time
@@ -45,11 +46,16 @@ class SymbolThread(threading.Thread):
             prev_long_value = ema_long[-2]
 
             # Long
-            if short_value > long_value and prev_short_value < prev_long_value and rsi[-1] > 70 and positions[-1] == 1:
+            if True:#short_value > long_value and prev_short_value < prev_long_value and rsi[-1] > 70 and positions[-1] == 1:
                 print("{} Long".format(self.symbol))
                 qnt = 5  # значение количества, которое вы хотите использовать для торговли
                 long = self.client.create_market_order(symbol=self.symbol, side='BUY', qnt=qnt)
                 print("{} Bought {} units of {}".format(self.symbol, qnt, self.symbol.split("USDT")[0]))
+                try:
+                    tel.send_notification('Куплено {} {} по цене {}'.format(self.symbol, qnt, self.symbol.split("USDT")[0]))
+                except Exception as e:
+                    print(f'Ошибка при отправке уведомления: {e}')
+                # В случае ошибки, код выполнится дальше, а не будет остановлен
             # Short
             elif prev_short_value > prev_long_value and short_value < long_value and rsi[-1] < 30 and positions[
                 -1] == -1:
@@ -57,6 +63,7 @@ class SymbolThread(threading.Thread):
                 qnt = 5  # значение количества, которое вы хотите использовать для торговли
                 short = self.client.create_market_order(symbol=self.symbol, side='SELL', qnt=qnt)
                 print("{} Sold {} units of {}".format(self.symbol, qnt, self.symbol.split("USDT")[0]))
+                tel.send_notification('Продано {} {} по цене {}'.format(self.symbol, qnt, self.symbol.split("USDT")[0]))
             else:
                 print('{} No signal'.format(self.symbol))
 
