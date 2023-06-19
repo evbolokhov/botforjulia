@@ -15,21 +15,35 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-def send_telegram_message(bot_token, chat_id, text):
-    """
-    Отправляет сообщение в телеграм бота.
-    :param bot_token: токен бота.
-    :param chat_id: идентификатор чата.
-    :param text: текст сообщения.
-    """
-    url = "https://api.telegram.org/bot%s/sendMessage" % keys.TELEGRAM_TOKEN
-    data = {
-        "chat_id": keys.TELEGRAM_CHAT_ID,
-        "text": text
-    }
-    response = requests.post(url, data=data)
-    if response.status_code != 200:
-        print("Ошибка отправки сообщения в телеграм:", response.text)
+# def send_telegram_message(bot_token, chat_id, text):
+#     """
+#     Отправляет сообщение в телеграм бота.
+#     :param bot_token: токен бота.
+#     :param chat_id: идентификатор чата.
+#     :param text: текст сообщения.
+#     """
+#     url = "https://api.telegram.org/bot%s/sendMessage" % keys.TELEGRAM_TOKEN
+#     data = {
+#         "chat_id": keys.TELEGRAM_CHAT_ID,
+#         "text": text
+#     }
+#     response = requests.post(url, data=data)
+#     if response.status_code != 200:
+#         print("Ошибка отправки сообщения в телеграм:", response.text)
+# def send_telegram_message(chat_id, text):
+#     """
+#     Отправляет сообщение в телеграм бота.
+#     :param chat_id: идентификатор чата.
+#     :param text: текст сообщения.
+#     """
+#     url = f"https://api.telegram.org/bot{keys.TELEGRAM_TOKEN}/sendMessage"
+#     data = {
+#         "chat_id": chat_id,
+#         "text": text
+#     }
+#     response = requests.post(url, data=data)
+#     if response.status_code != 200:
+#         print("Ошибка отправки сообщения в телеграм:", response.text)
 class SymbolThread(threading.Thread):
     def __init__(self, symbol):
         super(SymbolThread, self).__init__()
@@ -55,15 +69,29 @@ class SymbolThread(threading.Thread):
             close_price = numpy_klines[:, 4]
             close_price = close_price.astype(float)
             print("{} close_price: {}".format(self.symbol, close_price[-1]))
+            message_text = (
+                f"{self.symbol} close_price: {close_price[-1]}"
+            )
+            tel.send_telegram_message(keys.TELEGRAM_CHAT_ID, message_text)
             ema_short = api.ema(close_price, 2)
             ema_long = api.ema(close_price, 5)
             rsi = (api.rsi(close_price, 14))
             print("{} rsi: {}".format(self.symbol, rsi[-1]))
+            message_text = (
+                f"{self.symbol} rsi: {rsi[-1]}"
+            )
+            tel.send_telegram_message(keys.TELEGRAM_CHAT_ID, message_text)
             bol = (api.bollinger_breakout_strategy(close_price, 20, 2))
             positions, upper_band, lower_band = bol
             print("{} Positions: {}".format(self.symbol, positions[-1]))
             print("{} Upper Band: {}".format(self.symbol, upper_band[-1]))
             print("{} Lower Band: {}".format(self.symbol, lower_band[-1]))
+            message_text = (
+                f"{self.symbol} Positions: {positions[-1]}\n"
+                f"{self.symbol} Upper Band: {upper_band[-1]}\n"
+                f"{self.symbol} Lower Band: {lower_band[-1]}"
+            )
+            tel.send_telegram_message(keys.TELEGRAM_CHAT_ID, message_text)
             short_value = ema_short[-1]
             prev_short_value = ema_short[-2]
             long_value = ema_long[-1]
@@ -76,7 +104,8 @@ class SymbolThread(threading.Thread):
                 long = self.client.create_market_order(symbol=self.symbol, side='BUY', qnt=qnt)
                 print("{} Bought {} units of {}".format(self.symbol, qnt, self.symbol.split("USDT")[0]))
                 message_text = "{} купил {} единиц {}.".format(self.symbol, qnt, self.symbol.split("USDT")[0])
-                send_telegram_message(keys.TELEGRAM_TOKEN, keys.TELEGRAM_CHAT_ID, message_text)
+                tel.send_telegram_message(keys.TELEGRAM_CHAT_ID, message_text)
+
                 # try:
 
                 # except telegram.error.InvalidToken as e:
@@ -132,5 +161,6 @@ def start_threads():
 #     await tel.main()
 
 if __name__ == '__main__':
+    # tel.receive_telegram_message(keys.TELEGRAM_TOKEN)
     start_threads()
     # asyncio.run(run())

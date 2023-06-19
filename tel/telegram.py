@@ -1,70 +1,57 @@
-# import telegram
-# import asyncio
-# import logging
+import keys
+import requests
+import json
+
+
+def send_telegram_message(chat_id, text):
+    """
+    Отправляет сообщение в телеграм бота.
+    :param chat_id: идентификатор чата.
+    :param text: текст сообщения.
+    """
+    url = f"https://api.telegram.org/bot{keys.TELEGRAM_TOKEN}/sendMessage"
+    data = {
+        "chat_id": chat_id,
+        "text": text
+    }
+    response = requests.post(url, data=data)
+    if response.status_code != 200:
+        print("Ошибка отправки сообщения в телеграм:", response.text)
+
+
+# def handle_message(message):
+#     """
+#     Обрабатывает сообщение от пользователя.
+#     :param message: объект сообщения.
+#     """
+#     chat_id = message["chat"]["id"]
+#     message_text = message["text"]
 #
-# import keys
-#
-# logger = logging.getLogger(__name__)
-# formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-# handler = logging.StreamHandler()
-# handler.setFormatter(formatter)
-# logger.addHandler(handler)
-#
-#
-# from telegram.error import NetworkError
-# from  time import sleep
-#
-# # Замените <your_token> на токен вашего бота Telegram
-# bot = telegram.Bot(token=keys.TELEGRAM_TOKEN)
-#
-# # chat_id - идентификатор чата в Telegram, куда будут отправляться уведомления
-# # Замените <your_chat_id> на идентификатор вашего чата в Telegram
-# chat_id = keys.TELEGRAM_CHAT_ID
-#
-#
-# #def send_notification(text):
-#     # offset = None
-#     # while True:
-#     # try:
-#     #asyncio.run(_send_notification(text))
-#     # except Exception as e:
-#         # logger.error("An error occurred: %s", e, exc_info=True)
-#
-#
-# # def send_notification(text):
-# #     # Ожидайте завершения корутины Bot.send_message() с помощью await
-# #
-# #     while True:
-# #         try:
-# #             if text:
-# #                 await bot.send_message(chat_id=chat_id, text=text)
-# #             await asyncio.sleep(5)
-# #
-# #         except Exception as e:
-# #             logger.error("An error occurred: %s", e, exc_info=True)
+#     # Обработка команды "ping"
+#     if message_text.lower() == "ping":
+#         send_telegram_message(chat_id, "pong")
 #
 #
-# # async def handle_messages():
-# #     offset = None
-# #     while True:
-# #         try:
-# #             updates = bot.get_updates(offset=offset, timeout=60)
-# #             for update in updates:
-# #                 message = update.message
-# #                 if message:
-# #                     # Обрабатывайте входящие сообщения здесь,
-# #                     # например, отправляйте уведомления в другой чат
-# #                     await bot.send_message(chat_id=chat_id, text=message.text)
-# #                 offset = update.update_id + 1
-# #         except telegram.TelegramError as error:
-# #             # Обрабатывайте ошибки при получении обновлений здесь
-# #             print(f'Error while receiving updates: {error}')
-# #         await asyncio.sleep(1)
-# #
-# #
-# # async def main():
-# #     # Создайте задачу для корутины handle_messages(),
-# #     # чтобы ее выполнение осуществлялось в отдельном потоке
-# #     task = asyncio.create_task(handle_messages())
-# #     await task
+# def receive_telegram_message(bot_token):
+#     """
+#     Принимает сообщения от телеграм бота методом Webhook.
+#     :param bot_token: токен бота.
+#     """
+#     url = f"https://api.telegram.org/bot{bot_token}/setWebhook"
+#     webhook_url = "https://your-webhook-url.com/webhook"
+#     payload = {"url": webhook_url}
+#     response = requests.post(url, json=payload)
+#     if response.status_code == 200:
+#         print("Webhook установлен.")
+#     else:
+#         print(f"Ошибка установки Webhook: {response.status_code} {response.text}")
 #
+#     # Обработка входящих сообщений
+#     while True:
+#         update = requests.get(f"https://api.telegram.org/bot{bot_token}/getUpdates?timeout=100")
+#         if update.status_code == 200:
+#             data = json.loads(update.content.decode('utf-8'))
+#             if data["result"]:
+#                 handle_message(data["result"][0]["message"])
+#         else:
+#             print(f"Ошибка получения обновлений: {update.status_code} {update.text}")
