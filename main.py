@@ -15,6 +15,15 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+# Создаем переменную interval со значением "1m" или "1h"
+interval = "1h"
+
+# Создаем переменную seconds, которая содержит количество секунд в зависимости от значения переменной interval
+if interval == "1h":
+    seconds = 3600  # 1 час = 60 минут * 60 секунд
+elif interval == "1m":
+    seconds = 60  # 1 минута = 60 секунд
+
 # def send_telegram_message(bot_token, chat_id, text):
 #     """
 #     Отправляет сообщение в телеграм бота.
@@ -57,10 +66,10 @@ class SymbolThread(threading.Thread):
 
     def run(self):
         # Ожидание начала новой минутной свечи
-        self.wait_time = round(10 - time.time() % 10 + 1)
+        self.wait_time = round(seconds - time.time() % seconds + 1)
         time.sleep(self.wait_time)
         while not self.stop_event.is_set():
-            klines = self.client.get_candles(symbol=self.symbol, interval='1m')
+            klines = self.client.get_candles(symbol=self.symbol, interval=interval)
             last_candle = klines[-1]
             if time.time() < last_candle[6]:
                 klines.pop()
@@ -98,7 +107,7 @@ class SymbolThread(threading.Thread):
             prev_long_value = ema_long[-2]
 
             # Long
-            if True:#short_value > long_value and prev_short_value < prev_long_value and rsi[-1] > 70 and positions[-1] == 1:
+            if short_value > long_value and prev_short_value < prev_long_value and rsi[-1] > 70 and positions[-1] == 1:
                 print("{} Long".format(self.symbol))
                 qnt = 5  # значение количества, которое вы хотите использовать для торговли
                 long = self.client.create_market_order(symbol=self.symbol, side='BUY', qnt=qnt)
@@ -128,7 +137,7 @@ class SymbolThread(threading.Thread):
                 print('{} No signal'.format(self.symbol))
 
             # Добавляем ожидание до следующей минутной свечи
-            wait_time_next = round(10 - time.time() % 10 + 1)
+            wait_time_next = round(seconds - time.time() % seconds + 1)
             print("До начала следующей минутной свечи: {} сек.".format(wait_time_next))
             time.sleep(wait_time_next)
 
