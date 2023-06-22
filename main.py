@@ -66,7 +66,7 @@ class SymbolThread(threading.Thread):
             long_pos = short_value > long_value and prev_short_value < prev_long_value
             shot_pos = prev_short_value > prev_long_value and short_value < long_value
             message_text = (
-                f"{self.symbol} close_price: {close_price[-1]}"
+                    f"{self.symbol} close_price: {close_price[-1]}\n"
                 f"{self.symbol} Positions Bol: {positions[-1]}\n"
                 f"{self.symbol} Upper Band: {upper_band[-1]}\n"
                 f"{self.symbol} Lower Band: {lower_band[-1]}\n"
